@@ -25,7 +25,9 @@ class MockAdapter : RecyclerView.Adapter<MockHolder>() {
         return mockList.size
     }
 
-    fun addData(mocks: List<Mock>) {
+    fun addData(mocks: List<Mock>, append: Boolean) {
+        if (!append) mockList.clear()
+
         mockList.addAll(mocks)
         notifyDataSetChanged()
     }
