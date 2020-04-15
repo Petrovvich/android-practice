@@ -1,4 +1,4 @@
-package ru.petrovich.list.view.yandex.map.recyclerviewapplication
+package ru.petrovich.recyclerviewapplication
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
