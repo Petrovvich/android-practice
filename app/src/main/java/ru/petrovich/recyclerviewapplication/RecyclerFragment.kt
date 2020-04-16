@@ -1,24 +1,32 @@
 package ru.petrovich.recyclerviewapplication
 
+import android.content.Context
+import android.database.Cursor
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.loader.app.LoaderManager
+import androidx.loader.content.CursorLoader
+import androidx.loader.content.Loader
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import ru.petrovich.list.view.yandex.map.recyclerviewapplication.R
 import ru.petrovich.recyclerviewapplication.mock.MockAdapter
-import ru.petrovich.recyclerviewapplication.mock.MockGenerator
 import java.util.*
 
-class RecyclerFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
+class RecyclerFragment : Fragment(),
+    SwipeRefreshLayout.OnRefreshListener,
+    LoaderManager.LoaderCallbacks<Cursor> {
     private lateinit var mRecycler: RecyclerView
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
     private lateinit var mErrorView: View
-    private val mockAdapter = MockAdapter()
-    private val mRandom = Random()
+//    private val mockAdapter = MockAdapter()
+//    private val mRandom = Random()
+    private val contactsAdapter = ContactsAdapter()
 
     companion object NewInstance {
         fun newInstance(): RecyclerFragment {
@@ -44,27 +52,48 @@ class RecyclerFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         mRecycler.layoutManager = LinearLayoutManager(activity)
-        mRecycler.adapter = mockAdapter
+        mRecycler.adapter = contactsAdapter
     }
 
     override fun onRefresh() {
-        mSwipeRefreshLayout.postDelayed(
-            {
-                var count = mRandom.nextInt(1)
+//        mSwipeRefreshLayout.postDelayed(
+//            {
+//                var count = mRandom.nextInt(1)
+//
+//                if (count == 0) {
+//                    if (mSwipeRefreshLayout.isRefreshing) mSwipeRefreshLayout.isRefreshing = false
+//                    mErrorView.visibility = View.VISIBLE
+//                    mRecycler.visibility = View.GONE
+//                } else {
+//                    if (mSwipeRefreshLayout.isRefreshing) mSwipeRefreshLayout.isRefreshing = false
+//                    mErrorView.visibility = View.GONE
+//                    mRecycler.visibility = View.VISIBLE
+//                    mockAdapter.addData(MockGenerator.generate(count), false)
+//                }
+//
+//            },
+//            2000
+//        )
+        loaderManager.restartLoader(0, null, this)
+    }
 
-                if (count == 0) {
-                    if (mSwipeRefreshLayout.isRefreshing) mSwipeRefreshLayout.isRefreshing = false
-                    mErrorView.visibility = View.VISIBLE
-                    mRecycler.visibility = View.GONE
-                } else {
-                    if (mSwipeRefreshLayout.isRefreshing) mSwipeRefreshLayout.isRefreshing = false
-                    mErrorView.visibility = View.GONE
-                    mRecycler.visibility = View.VISIBLE
-                    mockAdapter.addData(MockGenerator.generate(count), false)
-                }
-
-            },
-            2000
+    override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
+        return CursorLoader(
+            activity as Context,
+            ContactsContract.Contacts.CONTENT_URI,
+            arrayOf(ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME),
+            null,
+            null,
+            ContactsContract.Contacts._ID
         )
+    }
+
+    override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
+        contactsAdapter.swapCursor(data)
+        if (mSwipeRefreshLayout.isRefreshing) mSwipeRefreshLayout.isRefreshing = false
+    }
+
+    override fun onLoaderReset(loader: Loader<Cursor>) {
+        TODO("Not yet implemented")
     }
 }
