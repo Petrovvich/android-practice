@@ -15,8 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import ru.petrovich.list.view.yandex.map.recyclerviewapplication.R
-import ru.petrovich.recyclerviewapplication.mock.MockAdapter
-import java.util.*
+import ru.petrovich.recyclerviewapplication.listeners.OnItemClickListener
 
 class RecyclerFragment : Fragment(),
     SwipeRefreshLayout.OnRefreshListener,
@@ -24,14 +23,23 @@ class RecyclerFragment : Fragment(),
     private lateinit var mRecycler: RecyclerView
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
     private lateinit var mErrorView: View
-//    private val mockAdapter = MockAdapter()
-//    private val mRandom = Random()
     private val contactsAdapter = ContactsAdapter()
+    private var listener: OnItemClickListener? = null
 
     companion object NewInstance {
         fun newInstance(): RecyclerFragment {
             return RecyclerFragment()
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnItemClickListener) listener = context
+    }
+
+    override fun onDetach() {
+        listener = null
+        super.onDetach()
     }
 
     override fun onCreateView(
@@ -53,27 +61,10 @@ class RecyclerFragment : Fragment(),
         super.onActivityCreated(savedInstanceState)
         mRecycler.layoutManager = LinearLayoutManager(activity)
         mRecycler.adapter = contactsAdapter
+        contactsAdapter.listener = listener
     }
 
     override fun onRefresh() {
-//        mSwipeRefreshLayout.postDelayed(
-//            {
-//                var count = mRandom.nextInt(1)
-//
-//                if (count == 0) {
-//                    if (mSwipeRefreshLayout.isRefreshing) mSwipeRefreshLayout.isRefreshing = false
-//                    mErrorView.visibility = View.VISIBLE
-//                    mRecycler.visibility = View.GONE
-//                } else {
-//                    if (mSwipeRefreshLayout.isRefreshing) mSwipeRefreshLayout.isRefreshing = false
-//                    mErrorView.visibility = View.GONE
-//                    mRecycler.visibility = View.VISIBLE
-//                    mockAdapter.addData(MockGenerator.generate(count), false)
-//                }
-//
-//            },
-//            2000
-//        )
         loaderManager.restartLoader(0, null, this)
     }
 

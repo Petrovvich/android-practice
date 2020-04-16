@@ -6,11 +6,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.petrovich.list.view.yandex.map.recyclerviewapplication.R
+import ru.petrovich.recyclerviewapplication.listeners.OnItemClickListener
 import ru.petrovich.recyclerviewapplication.mock.Mock
 import ru.petrovich.recyclerviewapplication.mock.MockHolder
 
 class ContactsAdapter : RecyclerView.Adapter<MockHolder>() {
 
+    var listener: OnItemClickListener? = null
     private var mCursor: Cursor? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MockHolder {
@@ -38,6 +40,7 @@ class ContactsAdapter : RecyclerView.Adapter<MockHolder>() {
                         .getColumnIndex(ContactsContract.Contacts._ID)
                 )
             holder.bind(Mock(name, id))
+            holder.listener(listener)
         }
     }
 
